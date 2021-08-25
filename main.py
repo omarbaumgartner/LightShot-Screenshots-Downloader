@@ -1,5 +1,19 @@
 import requests,time,env
 import methods as m
+import socket
+from urllib3.connection import HTTPConnection
+
+
+# ... Making the program resilient ( Avoid interruption of the program )
+# Avoid error : Connection reset by peer
+HTTPConnection.default_socket_options = (
+    HTTPConnection.default_socket_options + [
+        (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+        (socket.SOL_TCP, socket.TCP_KEEPIDLE, 45),
+        (socket.SOL_TCP, socket.TCP_KEEPINTVL, 10),
+        (socket.SOL_TCP, socket.TCP_KEEPCNT, 6)
+    ]
+)
 
 m.init()
 
@@ -49,10 +63,22 @@ while(True):
         # Adding the already used URL in a list.
         with open(env.existingUrlsFileName, 'a') as ExistingListFile:
             filename = ImageUrl.split('/')[-1]
+            
+            # Download image --------
+            
             # Getting image
-            r = requests.get(ImageUrl, allow_redirects=True)
+            #r = requests.get(ImageUrl, allow_redirects=True)
             # Downloading file into directory
-            open(env.downloadsDirectory+'/'+filename, 'wb').write(r.content)
+            #open(env.downloadsDirectory+'/'+filename, 'wb').write(r.content)
+            
+            """
+            TODO : 
+            - Make the program only fetch correct urls without downloading them
+            - Add a method to directly download the images from the existinglist ( and download only the images that are not already in the directory ) 
+            - make ExistingList hosted online ( via google drive api ) to have only one single list ( even if using different machines ) 
+            """
+            # -------
+
             ExistingListFile.write(RandomUrl+"\n")
             count = count+1
             actualTime = int(round(time.time()))
