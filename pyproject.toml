@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "lightshot-screenshots-scraper"
+version = "0.1.0"
+description = ""
+authors = ["Omar Roland Baumgärtner <43905288+omarbaumgartner@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

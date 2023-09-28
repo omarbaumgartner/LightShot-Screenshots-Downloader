@@ -90,7 +90,7 @@ def main():
                 #ratio = count / (actualTime-startingTime)
                 #print("Speed : ", ratio, "img/s")
                 print("Downloaded (", count, ")")        
-        sleep(randint(1,5))
+        sleep(0.5)
 
 
 main()
