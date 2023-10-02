@@ -55,7 +55,7 @@ def main():
         # Retrieving the portion of URL which defines the screenshot
         ImageUrl = m.GetImageUrl(content.text)
         # Return false if the portion isn't found
-        if(ImageUrl == False):
+        if(filename == False):
             print(RandomUrl,"not existing")
             NonExistingList.append(ImageUrl)
             # Adding the useless URL in a list.
@@ -71,9 +71,9 @@ def main():
                 # Download image --------
                 
                 # Getting image
-                #r = requests.get(ImageUrl, allow_redirects=True)
-                # Downloading file into directory
-                #open(env.downloadsDirectory+'/'+filename, 'wb').write(r.content)
+                r = requests.get(ImageUrl, allow_redirects=True)
+                #  Downloading file into directory
+                open(env.downloadsDirectory+'/'+filename, 'wb').write(r.content)
                 
                 """
                 TODO : 
@@ -92,5 +92,42 @@ def main():
                 print("Downloaded (", count, ")")        
         sleep(0.5)
 
+def CheckExistingFiles():
+    # Checking if the list of files in existingList.txt are existing in Downloads directory
+    with open(env.existingUrlsFileName, 'r') as ListFile:
+        ExistingList = ListFile.read().split("\n")
+    for url in ExistingList:
+        filename = url
+        # check if url.* exists in directory
+        if m.CheckIfFileExists(env.downloadsDirectory+'/'+filename) == False:
+            print("File",filename,"not existing in Downloads directory")
+            url = 'https://prnt.sc/'+url
+            filename = download_image(url)
+        else:
+            print("File",filename,"existing in Downloads directory")
 
-main()
+def download_image(url):
+    content = session.get(url)
+            # Retrieving the portion of URL which defines the screenshot
+    ImageUrl = m.GetImageUrl(content.text)
+            # Return false if the portion isn't found
+    if(ImageUrl == False):
+        print(url," URL not existing")
+        return False
+    else:
+                # Getting image
+        r = requests.get(ImageUrl, allow_redirects=True)
+                #  Downloading file into directory
+        filename = ImageUrl.split('/')[-1]
+        open(env.downloadsDirectory+'/'+filename, 'wb').write(r.content)
+        print("Downloaded : ",filename)
+        return filename
+
+
+if __name__ == "__main__":
+    # Remove duplicates in existingList.txt and nonexistingList.txt
+    m.RemoveDuplicates()
+    # Checking if the list of files in existingList.txt are existing in Downloads directory
+    CheckExistingFiles()
+
+    main()

@@ -31,3 +31,24 @@ def GetImageUrl(text):
         endindex = index+31
         url = text[index:endindex]
         return url
+
+def CheckIfFileExists(filename):
+    return os.path.isfile(filename)
+
+# Removing duplicates from a list and returning the new list without duplicates and saved in a file
+def RemoveDuplicates():
+    with open(env.existingUrlsFileName, 'r') as ExistingListFile:
+        ExistingList = ExistingListFile.read().split("\n")
+    with open(env.nonexistingUrlsFileName, 'r') as NonExistingListFile:
+        NonExistingList = NonExistingListFile.read().split("\n")
+    
+    ExistingList = list(dict.fromkeys(ExistingList))
+    NonExistingList = list(dict.fromkeys(NonExistingList))
+    
+    with open(env.existingUrlsFileName, 'w') as ExistingListFile:
+        for url in ExistingList:
+            ExistingListFile.write(url+"\n")
+    with open(env.nonexistingUrlsFileName, 'w') as NonExistingListFile:
+        for url in NonExistingList:
+            NonExistingListFile.write(url+"\n")
+    print("Duplicates removed.")
