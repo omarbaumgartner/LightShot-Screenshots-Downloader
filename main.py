@@ -1,10 +1,13 @@
-import requests,time,env
+import requests,time
 import methods as m
 import socket
 from urllib3.connection import HTTPConnection
 from random import randint
 from time import sleep
 
+downloadsDirectory, downloadable_urls_path, non_downloadable_urls_path, min_delay, max_delay = m.load_yaml()
+
+m.init()
 
 # ... Making the program resilient ( Avoid interruption of the program )
 # Avoid error : Connection reset by peer
@@ -17,17 +20,6 @@ HTTPConnection.default_socket_options = (
     ]
 )
 
-m.init()
-
-startingTime = int(round(time.time()))
-
-# Opening the list of already used urls
-with open(env.existingUrlsFileName, 'r') as ListFile:
-    ExistingList = ListFile.read().split("\n")
-# Opening the list of non-existing urls
-with open(env.nonexistingUrlsFileName, 'r') as ListFile:
-    NonExistingList = ListFile.read().split("\n")
-
 proxies={'https':'http://62.252.146.74:8080'}
 # Creating session
 session = requests.Session()
@@ -35,6 +27,16 @@ session = requests.Session()
 session.headers.update(
         {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36'})
 #session.proxies = proxies    
+
+startingTime = int(round(time.time()))
+
+# Opening the list of already used urls
+with open(downloadable_urls_path, 'r') as ListFile:
+    ExistingList = ListFile.read().split("\n")
+# Opening the list of non-existing urls
+with open(non_downloadable_urls_path, 'r') as ListFile:
+    NonExistingList = ListFile.read().split("\n")
+
 
 def main():
     count = 0 # Downloads counter
@@ -49,6 +51,7 @@ def main():
             RandomUrl = m.RandomUrl()
             ExistingPathComparisonBool = m.CompareUrl(ExistingList, RandomUrl)
             NonExistingPathComparisonBool = m.CompareUrl(NonExistingList, RandomUrl)
+        
         # Sending an HTML GET Request to LightShow's website to retrieve its HTML page.
         url = 'https://prnt.sc/'+RandomUrl
         content = session.get(url)
@@ -59,21 +62,21 @@ def main():
             print(RandomUrl,"not existing")
             NonExistingList.append(ImageUrl)
             # Adding the useless URL in a list.
-            with open(env.nonexistingUrlsFileName, 'a') as nonExistingListFile:
+            with open(non_downloadable_urls_path, 'a') as nonExistingListFile:
                 nonExistingListFile.write(RandomUrl+"\n")
         else:
-            print("existing")
             ExistingList.append(ImageUrl)
             # Adding the already used URL in a list.
-            with open(env.existingUrlsFileName, 'a') as ExistingListFile:
+            with open(downloadable_urls_path, 'a') as ExistingListFile:
                 filename = ImageUrl.split('/')[-1]
                 
                 # Download image --------
                 
                 # Getting image
                 r = requests.get(ImageUrl, allow_redirects=True)
+                
                 #  Downloading file into directory
-                open(env.downloadsDirectory+'/'+filename, 'wb').write(r.content)
+                open(downloadsDirectory+'/'+filename, 'wb').write(r.content)
                 
                 """
                 TODO : 
@@ -90,21 +93,22 @@ def main():
                 #ratio = count / (actualTime-startingTime)
                 #print("Speed : ", ratio, "img/s")
                 print("Downloaded (", count, ")")        
-        sleep(0.5)
+        sleep(randint(min_delay, max_delay))
 
 def CheckExistingFiles():
     # Checking if the list of files in existingList.txt are existing in Downloads directory
-    with open(env.existingUrlsFileName, 'r') as ListFile:
+    with open(downloadable_urls_path, 'r') as ListFile:
         ExistingList = ListFile.read().split("\n")
     for url in ExistingList:
         filename = url
         # check if url.* exists in directory
-        if m.CheckIfFileExists(env.downloadsDirectory+'/'+filename) == False:
-            print("File",filename,"not existing in Downloads directory")
+        if m.CheckIfFileExists(downloadsDirectory+'/'+filename) == False:
+            print("File",filename,"not in directory")
             url = 'https://prnt.sc/'+url
             filename = download_image(url)
+            sleep(randint(min_delay, max_delay))
         else:
-            print("File",filename,"existing in Downloads directory")
+            print("File",filename," in directory")
 
 def download_image(url):
     content = session.get(url)
@@ -119,9 +123,18 @@ def download_image(url):
         r = requests.get(ImageUrl, allow_redirects=True)
                 #  Downloading file into directory
         filename = ImageUrl.split('/')[-1]
-        open(env.downloadsDirectory+'/'+filename, 'wb').write(r.content)
-        print("Downloaded : ",filename)
+        open(downloadsDirectory+'/'+filename, 'wb').write(r.content)
+        print("Downloaded")
         return filename
+
+
+def save_url(url):
+    with open(downloadable_urls_path, 'a') as ExistingListFile:
+        ExistingListFile.write(url+"\n")
+
+def save_nonexisting_url(url):
+    with open(non_downloadable_urls_path, 'a') as nonExistingListFile:
+        nonExistingListFile.write(url+"\n")
 
 
 if __name__ == "__main__":

@@ -1,16 +1,34 @@
-import random,string,os,env
+import random,string,os
+import yaml
+
+# Load params from params.yaml
+def load_yaml():
+    with open("params.yaml", 'r') as stream:
+        try:
+            params = yaml.safe_load(stream)
+            downloadsDirectory = params['downloadsDirectory']
+            downloadable_urls_path = params['downloadable_urls_path']
+            non_downloadable_urls_path = params['non_downloadable_urls_path']
+            min_delay = params['min_delay']
+            max_delay = params['max_delay']
+        
+        except yaml.YAMLError as exc:
+            print(exc)
+    return downloadsDirectory,downloadable_urls_path,non_downloadable_urls_path,min_delay,max_delay
+
+downloadsDirectory, downloadable_urls_path, non_downloadable_urls_path, min_delay, max_delay = load_yaml()
 
 # Creating missing files and directory if needed
 def init():
-    if not (os.path.exists('./'+env.existingUrlsFileName)):
-        print(env.existingUrlsFileName,": creating file.")
-        open(env.existingUrlsFileName, "w")
-    if not (os.path.exists('./'+env.nonexistingUrlsFileName)):
-        print(env.nonexistingUrlsFileName,": creating file.")
-        open(env.nonexistingUrlsFileName, "w")
-    if not (os.path.isdir(env.downloadsDirectory)):
-        print(env.downloadsDirectory,": creating directory")
-        os.makedirs(env.downloadsDirectory)
+    if not (os.path.exists('./'+downloadable_urls_path)):
+        print(downloadable_urls_path,": creating file.")
+        open(downloadable_urls_path, "w")
+    if not (os.path.exists('./'+non_downloadable_urls_path)):
+        print(non_downloadable_urls_path,": creating file.")
+        open(non_downloadable_urls_path, "w")
+    if not (os.path.isdir(downloadsDirectory)):
+        print(downloadsDirectory,": creating directory")
+        os.makedirs(downloadsDirectory)
 
 # Generating a random URL
 def RandomUrl():
@@ -37,18 +55,20 @@ def CheckIfFileExists(filename):
 
 # Removing duplicates from a list and returning the new list without duplicates and saved in a file
 def RemoveDuplicates():
-    with open(env.existingUrlsFileName, 'r') as ExistingListFile:
+    with open(downloadable_urls_path, 'r') as ExistingListFile:
         ExistingList = ExistingListFile.read().split("\n")
-    with open(env.nonexistingUrlsFileName, 'r') as NonExistingListFile:
+    with open(non_downloadable_urls_path, 'r') as NonExistingListFile:
         NonExistingList = NonExistingListFile.read().split("\n")
     
     ExistingList = list(dict.fromkeys(ExistingList))
     NonExistingList = list(dict.fromkeys(NonExistingList))
     
-    with open(env.existingUrlsFileName, 'w') as ExistingListFile:
+    with open(downloadable_urls_path, 'w') as ExistingListFile:
         for url in ExistingList:
             ExistingListFile.write(url+"\n")
-    with open(env.nonexistingUrlsFileName, 'w') as NonExistingListFile:
+    with open(non_downloadable_urls_path, 'w') as NonExistingListFile:
         for url in NonExistingList:
             NonExistingListFile.write(url+"\n")
     print("Duplicates removed.")
+
+
