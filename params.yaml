@@ -2,8 +2,8 @@
 
 downloadsDirectory : "Downloads"
 # Delay between requests in second ( random between min_delay and max_delay)
-min_delay : 1
-max_delay : 3
+min_delay : 0
+max_delay : 0
 # Files
 downloadable_urls_path : "downloadable_urls.txt"
 non_downloadable_urls_path : "non_downloadable_urls.txt"

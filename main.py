@@ -10,23 +10,21 @@ downloadsDirectory, downloadable_urls_path, non_downloadable_urls_path, min_dela
 m.init()
 
 # ... Making the program resilient ( Avoid interruption of the program )
-# Avoid error : Connection reset by peer
-HTTPConnection.default_socket_options = (
-    HTTPConnection.default_socket_options + [
-        (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
-        (socket.SOL_TCP, socket.TCP_KEEPIDLE, 45),
-        (socket.SOL_TCP, socket.TCP_KEEPINTVL, 10),
-        (socket.SOL_TCP, socket.TCP_KEEPCNT, 6)
-    ]
-)
+# # Avoid error : Connection reset by peer
+# HTTPConnection.default_socket_options = (
+#     HTTPConnection.default_socket_options + [
+#         (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+#         (socket.SOL_TCP, socket.TCP_KEEPIDLE, 45),
+#         (socket.SOL_TCP, socket.TCP_KEEPINTVL, 10),
+#         (socket.SOL_TCP, socket.TCP_KEEPCNT, 6)
+#     ]
+# )
 
-proxies={'https':'http://62.252.146.74:8080'}
 # Creating session
 session = requests.Session()
 # Added a User-Agent otherwise it would'nt be retrieved
 session.headers.update(
         {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36'})
-#session.proxies = proxies    
 
 startingTime = int(round(time.time()))
 
