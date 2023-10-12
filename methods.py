@@ -1,5 +1,6 @@
 import random,string,os
 import yaml
+import time
 
 # Load params from params.yaml
 def load_yaml():
@@ -30,6 +31,18 @@ def init():
         print(downloadsDirectory,": creating directory")
         os.makedirs(downloadsDirectory)
 
+    #  Create log file
+    if not (os.path.exists('./log.txt')):
+        print("log.txt : creating file.")
+        open("log.txt", "w")
+    
+# Logging into console and log.txt
+def logger(text):
+    formatted_text = f"{time.strftime('%X %x')} : {text}"
+    print(formatted_text)
+    with open("log.txt", "a") as log:
+        log.write(formatted_text+"\n")
+
 # Generating a random URL
 def RandomUrl():
     letters = string.ascii_lowercase
@@ -44,11 +57,11 @@ def CompareUrl(UrlList, NewUrl):
 def GetImageUrl(text):
     index = text.find("https://i.imgur.com/")
     if(index == -1):
-        return False
+        return None,False
     else:
         endindex = index+31
         url = text[index:endindex]
-        return url
+        return url,True
 
 def CheckIfFileExists(filename):
     return os.path.isfile(filename)
